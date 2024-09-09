@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Columns</title>
+    </head>
+
+    <body>
+        <div class="header">
+            <h1>Model Results</h1>
+        </div>
+        <div class="container">
+            <div class="section">
+                <h1>Input values for predictions</h1>
+                Each separated by a comma (´column1's value, column2's value´)
+
+                <div>
+                    <table id="table" class="tableC">
+                        <thead>
+                        </thead>
+                        <tbody>
+
+                            <h5>Current columns to simulate:</h5>
+                            <tr>
+                                {% for column in columns %}
+                                <td chass="column">{{ column }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <form action="/completed.html" method="post">
+                    <input autofocus name="values" placeholder="Input numbers to be predicted" type="text">
+                    <input type="submit" value="Submit">
+                </form>
+                <h1>{{prediction}}</h1>
+
+            </div>
+            <h4>Model's score:</h2>
+                <h3>{{score}}% correct predictions</h3>
+                <a href="/download" class="download">Download model</a>
+        </div>
+    </body>
+        <form action="/" method="get">
+            <button>homepage</button>
+        </form>
+</html>
