@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<div id="status"></div>
+<button onclick="connectSerial()">Connect</button>
+<button onclick="sendData('Hello ESP32')" id="sendButton" disabled>Send Data</button>
+<script>
+    let port;
+      // Check if Web Serial API is supported
+    const statusDiv = document.getElementById('status');
+    statusDiv.innerHTML = '<p>Checking Web Serial API support...</p>';
+    
+    // Check if running in secure context
+    if (!window.isSecureContext) {
+        statusDiv.innerHTML += '<p style="color: red;">Page must be served over HTTPS or from localhost</p>';
+    }
+    
+    // Check if Serial API exists
+    if (!navigator.serial) {
+        statusDiv.innerHTML += 
+            '<p style="color: red;">Web Serial API is not supported. Checks:' +
+            '<br>1. Using Chrome/Edge?: ' + (navigator.userAgent.includes('Chrome') ? 'O' : 'X') +
+            '<br>2. Experimental features enabled?: Check chrome://flags' +
+            '<br>3. Browser restarted after enabling?: Required' +
+            '<br>4. Running in secure context?: ' + (window.isSecureContext ? 'O' : 'X') + '</p>';
+    } else {
+        statusDiv.innerHTML += '<p style="color: green;">Web Serial API is available! O</p>';
+    }async function connectSerial() {
+        if (!navigator.serial) {
+            alert("Web Serial API not supported. Please use Chrome/Edge and enable required flags.");
+            return;
+        }
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 9600 });
+            alert("Connected!");
+            document.getElementById('sendButton').disabled = false;
+            document.getElementById('status').innerHTML = 
+                '<p style="color: green;">Connected to ESP32!</p>';
+            readSerial();
+        } catch (err) {
+            console.error(err);
+            document.getElementById('status').innerHTML = 
+                '<p style="color: red;">Connection error: ' + err.message + '</p>';
+        }
+    }
+
+    async function readSerial() {
+        const reader = port.readable.getReader();
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            alert("Received:", new TextDecoder().decode(value));
+        }
+    }
+
+    async function sendData(data) {
+        const writer = port.writable.getWriter();
+        await writer.write(new TextEncoder().encode(data + '\n')); // Send with newline
+        writer.releaseLock();
+        alert("Sent:", data);
+        alert("Data sent: " + data);
+    }
+</script>
